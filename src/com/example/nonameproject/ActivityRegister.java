@@ -9,6 +9,7 @@ import com.example.nonameproject.util.DialogType;
 import com.example.nonameproject.util.GCMConfig;
 import com.example.nonameproject.util.Json;
 import com.example.nonameproject.util.ServerUtil;
+import com.example.nonameproject.util.StringUtil;
 import com.example.nonameproject.util.System;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
@@ -77,6 +78,16 @@ public class ActivityRegister extends ActivityMaster {
 		});
 
 	}
+	
+	/**
+	 * IF USER DOESN'T REGISTER AND JUST PRESSED BACK BUTTON.
+	 */
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		setResult(RESULT_CANCELED);
+		finish();
+	}
 
 	/**
 	 * Handles registration tasks. Implement sleep in catch block in
@@ -117,7 +128,7 @@ public class ActivityRegister extends ActivityMaster {
 				String id = null;
 				String serverResponse = null;
 
-				// one for GCM reg id and one for server response
+				// A LIST TO HOLD REGISTRATION ID AND SERVER ID 
 				List<Object> result = new ArrayList<Object>();
 
 				GoogleCloudMessaging gcm = GoogleCloudMessaging
@@ -215,8 +226,7 @@ public class ActivityRegister extends ActivityMaster {
 					String serverResponse = (String) response.get(1);
 
 					/**
-					 * CAN PUT THIS CODE INTO StringUtil Class if i made one in
-					 * future also serverResponse might be somewhat like this "<br>
+					 * serverResponse might be somewhat like this "<br>
 					 * <table
 					 * border='1' cellpadding='2' bgcolor='" handle it too.
 					 * currently it is causing application to crash.
@@ -224,18 +234,12 @@ public class ActivityRegister extends ActivityMaster {
 					 * PS: okay no need to handle above response, it was because
 					 * of syntax error in PHP. LOL
 					 * 
-					 * I think below string handling code is not protected against
+					 * TODO: I think below string handling code is not protected against
 					 * different strings. like string length could be 1 or something
 					 * like that. keep in mind to refactor it.
 					 */
 
-					
-					int openingBraceIndex = serverResponse.indexOf('{');
-					int closingBraceIndex = serverResponse.lastIndexOf('}');
-
-					String jsonResponse = serverResponse.substring(
-							openingBraceIndex, (closingBraceIndex + 1));
-
+					String jsonResponse = StringUtil.parseJsonString(serverResponse);
 					logMessage(jsonResponse);
 					/*******************************************************************/
 

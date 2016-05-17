@@ -5,7 +5,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.example.nonameproject.model.Event;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -24,6 +26,23 @@ public class ServerUtil {
 		
 	}
 	
+	public String submitEvent(String eventTitle,String eventCat,String eventAddress,
+							String eventDate, String eventDesc,String image) throws Exception{
+		
+		//CREATE PARAMETERS TO SENT TO PHP
+		List<NameValuePair> params = new ParamBuilder().addParam("event_title", eventTitle)
+		.addParam("event_car", eventCat)
+		.addParam("event_address", eventAddress)
+		.addParam("event_date", eventDate)
+		.addParam("event_desc", eventDesc)
+		.addParam("event_image", image).build();
+		
+		
+		String response = executeRequest("", params);
+		
+		return response;
+		
+	}
 	public String registerUser(String deviceID , String phoneNumber, String gcmRegID, String name)throws Exception{
 		
 		//CREATE PARAMETERS TO SEND TO PHP

@@ -1,5 +1,7 @@
 package com.example.nonameproject.util;
 
+import com.example.nonameproject.R;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -28,6 +30,16 @@ public class DialogFactory {
 					}).create();
 			break;
 		case DIALOG_ALERT:
+			break;
+		case DIALOG_DATETIME:
+			dialog = new Dialog(context);
+			dialog.setContentView(R.layout.dialog_date_time);
+			dialog.setTitle("Date Time");
+			break;
+		case DIALOG_IMAGE_PREVIEW:
+			dialog = new Dialog(context);
+			dialog.setContentView(R.layout.dialog_image_preview);
+			dialog.setTitle("Preview");
 			break;
 		}
 

@@ -21,7 +21,6 @@ public class GcmMessageHandler extends IntentService{
 		 * show the message into notification area.
 		 */
 		String message = intent.getExtras().getString("msg");
-		Log.d("", "Message is: "+message);
 		
 		Intent i = new Intent(ApplicationClass.ACTION_HANDLE_MESSAGES);
 		i.putExtra(ApplicationClass.KEY_EVENT, message);

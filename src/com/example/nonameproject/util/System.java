@@ -1,5 +1,10 @@
 package com.example.nonameproject.util;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import com.example.nonameproject.ActivityNotifications;
 import com.example.nonameproject.ApplicationClass;
 import com.example.nonameproject.R;
@@ -11,6 +16,8 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
@@ -22,6 +29,8 @@ public class System {
 	private static Context context;
 	public static int notificationCount;
 	private static final int NOTIFICATION_ID = 7777;
+	private static final String IMAGE_DIRECTORY_NAME = "EventsImages";
+	private static final int MEDIA_TYPE_IMAGE = 0;
 
 	/**So no one could create direct instance**/
 	private System() {notificationCount = 0;}
@@ -82,6 +91,41 @@ public class System {
 		// mId allows you to update the notification later on.
 		mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
 
+	}
+	
+	public Uri getOutputMediaFileUri(int type) {
+		return Uri.fromFile(getOutputMediaFile(type));
+	}
+
+	private static File getOutputMediaFile(int type) {
+
+		// External sdcard location
+		File mediaStorageDir = new File(
+				Environment
+						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+				IMAGE_DIRECTORY_NAME);
+
+		// Create the storage directory if it does not exist
+		if (!mediaStorageDir.exists()) {
+			if (!mediaStorageDir.mkdirs()) {
+				Log.d(IMAGE_DIRECTORY_NAME, "Oops! Failed create "
+						+ IMAGE_DIRECTORY_NAME + " directory");
+				return null;
+			}
+		}
+
+		// Create a media file name
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+				Locale.getDefault()).format(new Date());
+		File mediaFile;
+		if (type == MEDIA_TYPE_IMAGE) {
+			mediaFile = new File(mediaStorageDir.getPath() + File.separator
+					+ "IMG_" + timeStamp + ".jpg");
+		} else {
+			return null;
+		}
+
+		return mediaFile;
 	}
 
 }
