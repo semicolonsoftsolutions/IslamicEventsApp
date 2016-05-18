@@ -31,14 +31,14 @@ public class ServerUtil {
 		
 		//CREATE PARAMETERS TO SENT TO PHP
 		List<NameValuePair> params = new ParamBuilder().addParam("event_title", eventTitle)
-		.addParam("event_car", eventCat)
+		.addParam("event_cat", eventCat)
 		.addParam("event_address", eventAddress)
 		.addParam("event_date", eventDate)
 		.addParam("event_desc", eventDesc)
 		.addParam("event_image", image).build();
 		
 		
-		String response = executeRequest("", params);
+		String response = executeRequest("http://testingapps.netai.net/submit.php", params);
 		
 		return response;
 		

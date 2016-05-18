@@ -34,7 +34,9 @@ import android.widget.TimePicker;
 
 import com.example.nonameproject.util.DialogFactory;
 import com.example.nonameproject.util.DialogType;
+import com.example.nonameproject.util.Json;
 import com.example.nonameproject.util.ServerUtil;
+import com.example.nonameproject.util.StringUtil;
 import com.example.nonameproject.util.System;
 
 public class ActivityEvent extends ActivityMaster {
@@ -166,6 +168,10 @@ public class ActivityEvent extends ActivityMaster {
 
 			// downsizing image as it throws OutOfMemory Exception for larger
 			// images
+			
+			/**
+			 * TODO: size of image is big, convert it to small before uploading
+			 */
 			options.inSampleSize = 4;
 
 			bitmap = BitmapFactory.decodeFile(fileUri.getPath(),
@@ -193,6 +199,11 @@ public class ActivityEvent extends ActivityMaster {
 		/**
 		 * TODO: FIELD VALIDATION. NONE SHOULD BE EMPTY
 		 */
+		
+		/**
+		 * TODO: SHOW WAIT DIALOG WHILE DOING IN BACKGROUND
+		 * AND ALSO SHOW ERROR DIALOG INCASE OF ERROR PROCESSING
+		 */
 	
 		final String eventTitle = etTitle.getText().toString();
 		final String eventCat = spCat.getSelectedItem().toString();
@@ -210,6 +221,7 @@ public class ActivityEvent extends ActivityMaster {
 				String response = null;
 				
 				for (count = 1; count<=MAX_TRIES; count++) {
+					logMessage("Uploading event: try # "+count);
 					try{
 						response = serverUtil.submitEvent(eventTitle, eventCat,address, date, description, imageString);
 						
@@ -236,16 +248,31 @@ public class ActivityEvent extends ActivityMaster {
 			protected void onPostExecute(String result) {
 				super.onPostExecute(result);
 				if (result != null) {
-					logMessage("EVENT SUBMISSION RESPONSE: "+result);
+					StringUtil strUtil = new StringUtil();
+					String jsonResult = strUtil.parseJsonString(result);
+					String successUpload = "";
+					try{
+						Json json = new Json(jsonResult);
+						successUpload = json.getAttribute("success");	
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+					if (successUpload.trim().equals("1")) {
+						displayMessage("Event submitted successfully.");
+						finish();
+					}else{
+						displayMessage("Something went wrong");
+					}
 				}
 			}
-		};
+		}.execute();
 	}
 	
 	private String bitmapToBase64(Bitmap bitmap){
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		bitmap.compress(Bitmap.CompressFormat.PNG,10, bos);
 		byte[] byteArray = bos.toByteArray();
+		
 		return Base64.encodeToString(byteArray,Base64.DEFAULT);
 	}
 
