@@ -181,49 +181,54 @@ containing a value of this type.
         public static final int common_signin_btn_text_pressed_dark=0x7f020016;
         public static final int common_signin_btn_text_pressed_light=0x7f020017;
         public static final int ic_launcher=0x7f020018;
+        public static final int logo=0x7f020019;
+        public static final int splash_back=0x7f02001a;
     }
     public static final class id {
-        public static final int action_cancel_event=0x7f09001e;
-        public static final int action_new=0x7f09001f;
-        public static final int action_save_event=0x7f09001d;
-        public static final int action_w=0x7f090020;
-        public static final int bOkayDateTime=0x7f09001a;
-        public static final int bRegisterUser=0x7f090016;
-        public static final int captureImage=0x7f090012;
-        public static final int datePicker=0x7f090018;
-        public static final int etAddress=0x7f09000c;
-        public static final int etDate=0x7f09000e;
-        public static final int etDesc=0x7f090010;
-        public static final int etName=0x7f090017;
-        public static final int etPhoneNumber=0x7f090015;
+        public static final int action_cancel_event=0x7f090020;
+        public static final int action_new=0x7f090021;
+        public static final int action_save_event=0x7f09001f;
+        public static final int action_w=0x7f090022;
+        public static final int bOkayDateTime=0x7f09001c;
+        public static final int bRegisterUser=0x7f090017;
+        public static final int captureImage=0x7f090013;
+        public static final int datePicker=0x7f09001a;
+        public static final int etAddress=0x7f09000d;
+        public static final int etCat=0x7f09000b;
+        public static final int etDate=0x7f09000f;
+        public static final int etDesc=0x7f090011;
+        public static final int etName=0x7f090018;
+        public static final int etPhoneNumber=0x7f090016;
         public static final int etTitle=0x7f090008;
         public static final int hybrid=0x7f090000;
-        public static final int itemEventTitle=0x7f09001c;
+        public static final int itemEventTitle=0x7f09001e;
         public static final int ivEventImage=0x7f090006;
-        public static final int ivPreview=0x7f09001b;
-        public static final int listEvents=0x7f090014;
+        public static final int ivPreview=0x7f09001d;
+        public static final int listEvents=0x7f090015;
         public static final int none=0x7f090001;
         public static final int normal=0x7f090002;
-        public static final int openGallery=0x7f090013;
+        public static final int openGallery=0x7f090014;
         public static final int satellite=0x7f090003;
         public static final int scrollView1=0x7f090005;
         public static final int spCat=0x7f09000a;
         public static final int tableRow1=0x7f090007;
         public static final int tableRow2=0x7f090009;
-        public static final int tableRow3=0x7f09000b;
-        public static final int tableRow4=0x7f09000d;
-        public static final int tableRow5=0x7f09000f;
-        public static final int tableRow6=0x7f090011;
+        public static final int tableRow3=0x7f09000c;
+        public static final int tableRow4=0x7f09000e;
+        public static final int tableRow5=0x7f090010;
+        public static final int tableRow6=0x7f090012;
         public static final int terrain=0x7f090004;
-        public static final int timePicker=0x7f090019;
+        public static final int timePicker=0x7f09001b;
+        public static final int tvHadeethSplash=0x7f090019;
     }
     public static final class layout {
         public static final int activity_event=0x7f030000;
         public static final int activity_notifications=0x7f030001;
         public static final int activity_register=0x7f030002;
-        public static final int dialog_date_time=0x7f030003;
-        public static final int dialog_image_preview=0x7f030004;
-        public static final int event_list_item=0x7f030005;
+        public static final int activity_splash=0x7f030003;
+        public static final int dialog_date_time=0x7f030004;
+        public static final int dialog_image_preview=0x7f030005;
+        public static final int event_list_item=0x7f030006;
     }
     public static final class menu {
         public static final int activity_event=0x7f080000;
@@ -312,6 +317,9 @@ containing a value of this type.
         public static final int location_client_ulr_inactive_unknown_restriction=0x7f050014;
     }
     public static final class style {
+        /**  ACTION BAR TITLE STYLE 
+         */
+        public static final int ActionBar_Title=0x7f070005;
         /** 
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
@@ -337,7 +345,11 @@ containing a value of this type.
         /**  Application theme. 
          */
         public static final int AppTheme=0x7f070001;
-        public static final int MyActionBar=0x7f070002;
+        /**  ACTION BAR STYLE 
+         */
+        public static final int MyActionBar=0x7f070003;
+        public static final int MyActionBar_MenuTextStyle=0x7f070004;
+        public static final int textViewStyle=0x7f070002;
     }
     public static final class styleable {
         /** Attributes that can be used with a MapAttrs.

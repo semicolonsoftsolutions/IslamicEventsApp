@@ -28,6 +28,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.WindowManager;
 
 public class System {
 
@@ -96,6 +97,10 @@ public class System {
 		// mId allows you to update the notification later on.
 		mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
 
+	}
+	
+	public void hideSoftKeyboard(Context context){
+		((Activity)context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 	}
 
 	/**

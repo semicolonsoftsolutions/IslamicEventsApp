@@ -73,6 +73,7 @@ public class ActivityNotifications extends ActivityMaster {
 		setContentView(R.layout.activity_notifications);
 		context = this;
 
+
 		/**
 		 * SETTING UP LIST VIEW.IF THE USER HASN'T REGISTERED, THERE IS NO NEED
 		 * TO SHOW HIM HIS NOTIFICAITONS. ONCE HE IS REGISTERED WE'LL SHOW HIM

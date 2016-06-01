@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical" >
 
     <ScrollView
         android:id="@+id/scrollView1"
@@ -12,13 +12,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-             >
-             
-            <ImageView android:layout_width="fill_parent"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:id="@+id/ivEventImage"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_launcher"
-                android:id="@+id/ivEventImage"/>
+                android:adjustViewBounds="true"
+                android:src="@drawable/ic_launcher" />
 
             <TableLayout
                 android:layout_width="match_parent"
@@ -58,6 +59,14 @@
                         android:id="@+id/spCat"
                         android:layout_width="wrap_content"
                         android:layout_height="50dp" />
+                    
+                    <EditText
+                        android:id="@+id/etCat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="50dp"
+                        android:ems="10"
+                        android:visibility="gone"
+                        android:hint="Type Title" />
                 </TableRow>
 
                 <TableRow
@@ -128,6 +137,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="50dp"
                         android:text="Camera" />
+
                     <Button
                         android:id="@+id/openGallery"
                         android:layout_width="wrap_content"
@@ -135,6 +145,7 @@
                         android:text="Gallery" />
                 </TableRow>
             </TableLayout>
+
         </LinearLayout>
     </ScrollView>
 
