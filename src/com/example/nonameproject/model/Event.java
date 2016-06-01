@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.database.Cursor;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.example.nonameproject.util.Json;
 
-public class Event {
+public class Event implements Parcelable {
 	private int event_id;
 	private String event_desc = "";
 	
@@ -30,6 +32,20 @@ public class Event {
 	/*Default constructor*/
 	public Event(){}
 	
+	public Event(Parcel in){
+		event_id = in.readInt();
+		event_desc = in.readString();
+		attribute1 = in.readString();
+		attribute2 = in.readString();
+		attribute3 = in.readString();
+		attribute4 = in.readString();
+		attribute5 = in.readString();
+		attribute6 = in.readString();
+		attribute7 = in.readString();
+		attribute8 = in.readString();
+		attribute9 = in.readString();
+		attribute10 = in.readString();
+	}
 	public static Event createFromJson(String json)throws Exception{
 		
 		Event event = new Event();
@@ -156,5 +172,37 @@ public class Event {
 	public String toString(){
 		return this.attribute1;
 	}
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(getEvent_id());
+		dest.writeString(getEvent_desc());
+		dest.writeString(getAttribute1());
+		dest.writeString(getAttribute2());
+		dest.writeString(getAttribute3());
+		dest.writeString(getAttribute4());
+		dest.writeString(getAttribute5());
+		dest.writeString(getAttribute6());
+		dest.writeString(getAttribute7());
+		dest.writeString(getAttribute8());
+		dest.writeString(getAttribute9());
+		dest.writeString(getAttribute10());
+	}
+	public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Event createFromParcel(Parcel in) {
+            return new Event(in); 
+        }
+
+        public Event[] newArray(int size) {
+            return new Event[size];
+        }
+    };
+    
 	
 }

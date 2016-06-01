@@ -2,16 +2,24 @@ package com.example.nonameproject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,6 +27,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -29,9 +38,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 
+import com.example.nonameproject.model.Event;
 import com.example.nonameproject.util.DialogFactory;
 import com.example.nonameproject.util.DialogType;
 import com.example.nonameproject.util.Json;
@@ -62,6 +73,7 @@ public class ActivityEvent extends ActivityMaster {
 		setContentView(R.layout.activity_event);
 		context = this;
 
+			
 		/**
 		 * MAKE UI REFERENCES
 		 */
@@ -73,6 +85,28 @@ public class ActivityEvent extends ActivityMaster {
 		etDate = (EditText) findViewById(R.id.etDate);
 		etDesc = (EditText) findViewById(R.id.etDesc);
 
+		/**
+		 * CHECK IF IT'S A NEW EVENT OR VIEW EVENT.
+		 * IF IT'S VIEW EVENT MODE THEN DISABLE ALL
+		 * THE FIELDS.
+		 */
+		Intent intent = getIntent();
+		boolean showEventMode = intent.hasExtra("EXTRA_EVENT");
+		if (showEventMode) {
+			Event event = intent.getExtras().getParcelable("EXTRA_EVENT");
+			ImageView ivImage = (ImageView) findViewById(R.id.ivEventImage);
+			new DownloadImageTask(ivImage).execute(event.getAttribute5());
+			etTitle.setText(event.getAttribute1());
+			etAddress.setText(event.getAttribute3());
+			etDate.setText(event.getAttribute2());
+			etDesc.setText(event.getEvent_desc());
+			
+			etTitle.setEnabled(false);
+			etAddress.setEnabled(false);
+			etDate.setEnabled(false);
+			etDesc.setEnabled(false);
+		}
+		
 		/*** FILL SPINNER WITH VALUES ***/
 		fillSpinner();
 
@@ -157,25 +191,46 @@ public class ActivityEvent extends ActivityMaster {
 		cats[3] = "CAT-D";
 		cats[4] = "CAT-E";
 		return cats;
+	
 	}
+	
+	/**
+	 * I GOT THIS CODE FROM THE INTERNET, SOME THREAD ON STACK OVERFLOW.
+	 * I DON'T KNOW HOW BELOW CODE WORKS BUT IT DOES WORK.
+	 * @param bm
+	 * @param newWidth
+	 * @param newHeight
+	 * @return
+	 */
+	public Bitmap getResizedBitmap(Bitmap bm) {
+		
+		int scaleToUse = 40; // this will be our percentage
+		
+		/**
+		 * GET SCREEN RESOLUTION
+		 */
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		
+		int sizeY = size.y * scaleToUse / 100;
+		int sizeX = bm.getWidth() * sizeY / bm.getHeight();
+		Bitmap scaled = Bitmap.createScaledBitmap(bm, sizeX, sizeY, false);
+		return scaled;
+	}
+	
+	
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == RESULT_OK) {
 
-			// bimatp factory
-			BitmapFactory.Options options = new BitmapFactory.Options();
-
-			// downsizing image as it throws OutOfMemory Exception for larger
-			// images
+			bitmap = BitmapFactory.decodeFile(fileUri.getPath());
+			bitmap = getResizedBitmap(bitmap);
+			ImageView iv = (ImageView) findViewById(R.id.ivEventImage);
+			iv.setImageBitmap(bitmap);
 			
-			/**
-			 * TODO: size of image is big, convert it to small before uploading
-			 */
-			options.inSampleSize = 4;
-
-			bitmap = BitmapFactory.decodeFile(fileUri.getPath(),
-					options);
+			
 			/**
 			 * TODO: SHOW BITMAP IN A PREVIEW AND CROP IF I HAD ANY REQ LIKE THAT
 			 */
@@ -200,20 +255,36 @@ public class ActivityEvent extends ActivityMaster {
 		 * TODO: FIELD VALIDATION. NONE SHOULD BE EMPTY
 		 */
 		
+		
 		/**
-		 * TODO: SHOW WAIT DIALOG WHILE DOING IN BACKGROUND
-		 * AND ALSO SHOW ERROR DIALOG INCASE OF ERROR PROCESSING
+		 * DIALOGS THAT'LL BE USED IN THIS TASK
 		 */
+		final ProgressDialog waitDialog = (ProgressDialog) DialogFactory
+				.createDialog(DialogType.DIALOG_WAIT, context);
+		waitDialog.setTitle("Please wait!");
+		waitDialog.setMessage("Submitting Event. Try # 1.");
+		waitDialog.setIndeterminate(true);
+
+		final AlertDialog errorDialog = (AlertDialog) DialogFactory
+				.createDialog(DialogType.DIALOG_ERROR, context);
+		errorDialog.setTitle("Error");
+		errorDialog.setMessage("Check your internet connection and try again!");
+		
+		
 	
 		final String eventTitle = etTitle.getText().toString();
 		final String eventCat = spCat.getSelectedItem().toString();
 		final String address = etAddress.getText().toString();
 		final String date = etDate.getText().toString();
 		final String description = etDesc.getText().toString();
-		final String imageString = bitmapToBase64(bitmap);
+		final String imageString = StringUtil.bitmapToBase64(bitmap);
 		
 		new AsyncTask<Void, Void, String>() {
 
+			protected void onPreExecute() {
+				waitDialog.show();
+			};
+			
 			@Override
 			protected String doInBackground(Void... params) {
 				ServerUtil serverUtil = new ServerUtil();
@@ -221,6 +292,7 @@ public class ActivityEvent extends ActivityMaster {
 				String response = null;
 				
 				for (count = 1; count<=MAX_TRIES; count++) {
+					waitDialog.setMessage("Submitting Event, Try # "+count);
 					logMessage("Uploading event: try # "+count);
 					try{
 						response = serverUtil.submitEvent(eventTitle, eventCat,address, date, description, imageString);
@@ -239,6 +311,7 @@ public class ActivityEvent extends ActivityMaster {
 				 * OF A LOG MESSAGE
 				 */
 				if (count == (MAX_TRIES+1)) {
+					errorDialog.setMessage("SERVER ISN'T RESPONDING, TRY AGAIN.");
 					logMessage("Server isn't responding or your internet is not on");
 				}
 				return response;
@@ -258,9 +331,13 @@ public class ActivityEvent extends ActivityMaster {
 						e.printStackTrace();
 					}
 					if (successUpload.trim().equals("1")) {
-						displayMessage("Event submitted successfully.");
+						waitDialog.cancel();
+						displayMessage("EVENT SUBMITTED SUCCESSFULLY");
 						finish();
 					}else{
+						waitDialog.cancel();
+						errorDialog.setMessage("SOMETHING WENT WRONG, TRY AGAIN.");
+						errorDialog.show();
 						displayMessage("Something went wrong");
 					}
 				}
@@ -268,12 +345,56 @@ public class ActivityEvent extends ActivityMaster {
 		}.execute();
 	}
 	
-	private String bitmapToBase64(Bitmap bitmap){
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		bitmap.compress(Bitmap.CompressFormat.PNG,10, bos);
-		byte[] byteArray = bos.toByteArray();
+	
+	
+	private class DownloadImageTask extends AsyncTask<String, Void, Bitmap>{
+
+		ImageView imageView;
 		
-		return Base64.encodeToString(byteArray,Base64.DEFAULT);
+		public DownloadImageTask(ImageView imageView){
+			this.imageView = imageView;
+		}
+		
+		
+		@Override
+		protected Bitmap doInBackground(String... params) {
+			
+			String imageName = params[0].split("/")[1];
+			System system = System.getInstance(context);
+			
+			//IF IMAGE EXISTS IN LOCAL STORAGE THEN GET IT FROM THERE
+			if (system.fileExists(imageName)){
+				logMessage("image exists in local storage");
+				try{
+					return system.getLocalBitmap(imageName);
+				}catch (Exception e) {
+					e.printStackTrace();
+					return null;
+				}
+				
+			}
+			
+			//IF THE IMAGE IS NOT IN LOCAL STORAGE THEN DOWNLOAD IT FROM REMOTE AND SAVE IN LOCAL STORAGE
+			logMessage("downloading image . . . "+imageName);
+			String urldisplay = ApplicationClass.BASE_URL+"/"+params[0];
+	        Bitmap mIcon11 = null;
+	        try {
+	            InputStream in = new java.net.URL(urldisplay).openStream();
+	            mIcon11 = BitmapFactory.decodeStream(in);
+	            system.saveBitmap(mIcon11, imageName);
+	        } catch (Exception e) {
+	            Log.e("Error", e.getMessage());
+	            e.printStackTrace();
+	        }
+	        return mIcon11;
+		}
+		
+		@Override
+		protected void onPostExecute(Bitmap result) {
+			super.onPostExecute(result);
+			imageView.setImageBitmap(result);
+		}
+		
 	}
 
 	@Override

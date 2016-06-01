@@ -55,7 +55,7 @@ public class EventListAdapter extends ArrayAdapter<Event>{
 			
 			item = (Item) view.getTag();
 		}
-		Log.d("NONAME", items.get(position).getAttribute1()+" ");
+		Log.d("NONAME", items.get(position).getAttribute1()+" "+items.get(position).getAttribute5());
 		item.tvEventTitle.setText(items.get(position).getAttribute1());
 		
 		

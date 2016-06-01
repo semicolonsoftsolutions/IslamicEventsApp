@@ -1,34 +1,24 @@
 package com.example.nonameproject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.json.JSONException;
-
-import com.example.nonameproject.adapter.EventListAdapter;
-import com.example.nonameproject.model.Event;
-import com.example.nonameproject.util.AppPrefs;
-import com.example.nonameproject.util.Database;
-import com.example.nonameproject.util.GCMConfig;
-import com.example.nonameproject.util.Json;
-import com.example.nonameproject.util.ServerUtil;
-import com.example.nonameproject.util.System;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-import android.widget.Toast;
+
+import com.example.nonameproject.adapter.EventListAdapter;
+import com.example.nonameproject.model.Event;
+import com.example.nonameproject.util.AppPrefs;
+import com.example.nonameproject.util.Database;
 
 public class ActivityNotifications extends ActivityMaster {
 
@@ -105,6 +95,21 @@ public class ActivityNotifications extends ActivityMaster {
 		listEvents.setAdapter(adapter);
 		/*******************************ABOVE CODE SHOULD BE EXECUTED BEFORE ALL******************************/
 		
+		/**
+		 * LIST CLICK HANDLER
+		 */
+		listEvents.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Event event = events.get(position);
+				Intent showEvent = new Intent(context,ActivityEvent.class);
+				showEvent.putExtra("EXTRA_EVENT", event);
+				startActivity(showEvent);
+				
+			}
+		});
 		
 		/***
 		 * Check to see if user opens this activity by clicking on notification
