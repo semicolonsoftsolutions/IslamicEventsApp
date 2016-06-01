@@ -62,7 +62,9 @@ public class ActivityEvent extends ActivityMaster {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_event);
 		context = this;
-
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		
+		
 		/**
 		 * MAKE UI REFERENCES
 		 */
