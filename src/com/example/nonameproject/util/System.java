@@ -23,8 +23,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
@@ -80,11 +84,12 @@ public class System {
 		Intent resultIntent = new Intent(context, ActivityNotifications.class);
 
 		resultIntent.putExtra("NOTIFICATION_CLICKED", true);
-		// The stack builder object will contain an artificial back stack for
-		// the
-		// started Activity.
-		// This ensures that navigating backward from the Activity leads out of
-		// your application to the Home screen.
+		/*
+		 * The stack builder object will contain an artificial back stack for
+		 * the started Activity. This ensures that navigating backward from the
+		 * Activity leads out of your application to the Home screen.
+		 */
+
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
 		// Adds the back stack for the Intent (but not the Intent itself)
 		stackBuilder.addParentStack(ActivityNotifications.class);
@@ -97,20 +102,49 @@ public class System {
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 		// mId allows you to update the notification later on.
 		Notification notification = mBuilder.build();
-		
+
 		mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
 
 	}
-	
-	public void removeAllNotifications(){
-		NotificationManager notifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		notifyManager.cancel(NOTIFICATION_ID);
-		ApplicationClass.mNotificationCount = 0;
-		
+
+	public void wakeAndBeep(){
+		PowerManager pw = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+		final WakeLock newWakeLock = pw.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK|PowerManager.ACQUIRE_CAUSES_WAKEUP,"TAG");
+		beep();
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try{
+					//Log.d("NONAME", "WAKA UP SCREEN!");
+					newWakeLock.acquire();
+					Thread.sleep(2000);
+				}catch (Exception e) {
+					e.printStackTrace();
+				}finally{
+					//Log.d("NONAME", "GOING BACK TO SLEEP");
+					newWakeLock.release();
+				}
+			}
+		}).start();
+	}
+	private void beep(){
+		Uri notifyRing = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+		Ringtone ringTone = RingtoneManager.getRingtone(context, notifyRing);
+		ringTone.play();
 	}
 	
-	public void hideSoftKeyboard(Context context){
-		((Activity)context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+	public void removeAllNotifications() {
+		NotificationManager notifyManager = (NotificationManager) context
+				.getSystemService(Context.NOTIFICATION_SERVICE);
+		notifyManager.cancel(NOTIFICATION_ID);
+		ApplicationClass.mNotificationCount = 0;
+
+	}
+
+	public void hideSoftKeyboard(Context context) {
+		((Activity) context).getWindow().setSoftInputMode(
+				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 	}
 
 	/**
@@ -123,7 +157,7 @@ public class System {
 		File downloadImagesDir = new File(
 				Environment
 						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-			ApplicationClass.DOWNLOAD_IMAGES_DIRNAME);
+				ApplicationClass.DOWNLOAD_IMAGES_DIRNAME);
 		if (!downloadImagesDir.exists()) {
 			downloadImagesDir.mkdirs();
 		}

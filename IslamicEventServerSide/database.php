@@ -91,8 +91,8 @@
 			return $ids;
 		}
 
-		function save_event($event_title,$event_date,$event_address,$event_cat,$event_desc,$event_image,$published){
-			$save_event_query = "insert into event (`event_id`, `attribute1`, `attribute2`, `attribute3`, `attribute4`,`attribute5`, `description`,`published`) values ('','$event_title','$event_date','$event_address','$event_cat','$event_image','$event_desc','$published')";
+		function save_event($event_title,$event_date,$event_address,$event_cat,$event_desc,$event_image,$event_city,$published){
+			$save_event_query = "insert into event (`event_id`, `attribute1`, `attribute2`, `attribute3`, `attribute4`,`attribute5`, `description`,`attribute6`,`published`) values ('','$event_title','$event_date','$event_address','$event_cat','$event_image','$event_desc','$event_city','$published')";
  			$result = mysql_query($save_event_query);
 
  			if ($result) {

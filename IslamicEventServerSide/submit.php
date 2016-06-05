@@ -16,12 +16,13 @@
 		$event_title = $_POST['event_title'];
 		$event_cat = $_POST['event_cat'];
 		$event_address = $_POST['event_address'];
+		$event_city = $_POST['event_city'];
 		$event_date = $_POST['event_date'];
 		$event_desc = $_POST['event_desc'];
 
 		$db = new Database();
 		$db -> connect();
-		$result = $db -> save_event($event_title,$event_date,$event_address,$event_cat,$event_desc,'event_images/'.$image_name.'.png',$published);
+		$result = $db -> save_event($event_title,$event_date,$event_address,$event_cat,$event_desc,'event_images/'.$image_name.'.png',$event_city,$published);
 		if ($result>0) {
 			echo json_encode(array('success' => 1 , 'operation'=>'EVENT_UPLOAD'));
 		}else{

@@ -584,6 +584,8 @@ public class ActivityEvent extends ActivityMaster {
 			displayMessage("Error Removing Event.");
 		}
 	}
+	
+	//TODO: ADD EVENT DATE TO CALENDAR EVENT
 	private void addEventToCalendar(Event e){
 		Intent intent = new Intent(Intent.ACTION_EDIT);
 		intent.setType("vnd.android.cursor.item/event");
