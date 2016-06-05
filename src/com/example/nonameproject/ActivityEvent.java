@@ -57,7 +57,6 @@ public class ActivityEvent extends ActivityMaster {
 	private static final int MAX_TRIES = 5;
 	/* EDIT/NEW MODE CONTROL */
 	private Button bCamera;
-	private EditText etCat;
 	private Button bGallery;
 	private EditText etTitle;
 	private Spinner spCat;
@@ -77,9 +76,7 @@ public class ActivityEvent extends ActivityMaster {
 	private Context context;
 	private Uri fileUri;
 	private Bitmap bitmap;
-	private Menu eventMenu;
 	private boolean showEventMode;
-	private boolean bannerDownloading;
 	private DownloadImageTask downloadTask;
 	private Event selectedEvent;
 
@@ -471,7 +468,6 @@ public class ActivityEvent extends ActivityMaster {
 			waitDialog.setMessage("Downloading Banner.");
 			waitDialog.setIndeterminate(true);
 			waitDialog.setCancelable(false);
-			bannerDownloading = true;
 		}
 
 		@Override
@@ -590,7 +586,7 @@ public class ActivityEvent extends ActivityMaster {
 				if (item == 0) {
 					addEventToCalendar(selectedEvent);
 				} else if (item == 1) {
-
+					sendEvent(selectedEvent);
 				} else if (item == 2) {
 					deleteEvent(selectedEvent);
 				}
@@ -619,26 +615,32 @@ public class ActivityEvent extends ActivityMaster {
 		}
 	}
 
-	// TODO: ADD EVENT DATE TO CALENDAR EVENT
+	/*
+	 * ADDS EVENT TO NATIVE CALENDAR APPLICATION
+	 */
 	private void addEventToCalendar(Event e) {
-	
+
 		String date = e.getAttribute2();
 		String dateTokens[] = date.split(" ");
-		
+
+		// convert event date to dd-MM-yyyy hh:mm a format
 		String datePart = dateTokens[0].replace("/", "-");
 		String datePartTokens[] = datePart.split("-");
-		datePart = datePartTokens[1]+"-"+datePartTokens[0]+"-"+datePartTokens[2];
-		String timePart = dateTokens[1]+" "+dateTokens[2];
-		
-		java.text.DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
-		Date inputDate=null;
+		datePart = datePartTokens[1] + "-" + datePartTokens[0] + "-"
+				+ datePartTokens[2];
+		String timePart = dateTokens[1] + " " + dateTokens[2];
+		// ------------------------------------------------------------------------
+
+		java.text.DateFormat dateFormat = new SimpleDateFormat(
+				"dd-MM-yyyy hh:mm a");
+		Date inputDate = null;
 		try {
-			inputDate = dateFormat.parse(datePart+" "+timePart);
+			inputDate = dateFormat.parse(datePart + " " + timePart);
 		} catch (ParseException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 		Intent intent = new Intent(Intent.ACTION_EDIT);
 		intent.setType("vnd.android.cursor.item/event");
 		intent.putExtra(Events.TITLE, e.getAttribute1());
@@ -649,5 +651,16 @@ public class ActivityEvent extends ActivityMaster {
 		intent.putExtra(Events.ALL_DAY, false);// periodicity
 		intent.putExtra(Events.DESCRIPTION, e.getEvent_desc());
 		startActivity(intent);
+	}
+
+	private void sendEvent(Event e) {
+		String shareBody = "Here is the share content body";
+		Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+		sharingIntent.setType("text/plain");
+		sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+				"Subject Here");
+		sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+		startActivity(Intent.createChooser(sharingIntent, "Spread The Message"));
+		
 	}
 }

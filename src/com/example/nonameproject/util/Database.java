@@ -1,16 +1,14 @@
 package com.example.nonameproject.util;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import com.example.nonameproject.model.Event;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.example.nonameproject.model.Event;
 
 public class Database extends SQLiteOpenHelper{
 	
