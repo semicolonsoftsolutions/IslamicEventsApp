@@ -6,13 +6,15 @@
         android:id="@+id/action_save_event"
         android:orderInCategory="1"
         android:showAsAction="ifRoom"
-        android:title="Save"/>
+        android:icon="@drawable/save_event"
+        android:title=""/>
     
     <item
         android:id="@+id/action_cancel_event"
         android:orderInCategory="1"
         android:showAsAction="ifRoom"
-        android:title="Cancel"/>
+        android:icon="@drawable/cancel_event"
+        android:title=""/>
     <item
         android:id="@+id/action_w"
         android:orderInCategory="2"

@@ -6,7 +6,8 @@
         android:id="@+id/action_new"
         android:orderInCategory="1"
         android:showAsAction="ifRoom"
-        android:title="New Event"/>
+        android:icon="@drawable/new_event"
+        android:title=""/>
     
     <item
         android:id="@+id/action_settings"
