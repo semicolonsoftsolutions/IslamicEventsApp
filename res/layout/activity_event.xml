@@ -96,6 +96,37 @@
                     android:background="@drawable/divider" />
 
                 <TableRow
+                    android:id="@+id/tableRow26"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="City: "
+                        android:textColor="#7A7A7A"
+                        android:textStyle="bold" />
+
+                    <Spinner
+                        android:id="@+id/spCity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="50dp" />
+
+                    <TextView
+                        android:id="@+id/tvCity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:hint="Type Title"
+                        android:textColor="#7A7A7A"
+                        android:visibility="gone" />
+                </TableRow>
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/divider" />
+                <TableRow
                     android:id="@+id/tableRow3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" >

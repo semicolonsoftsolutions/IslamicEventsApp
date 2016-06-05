@@ -1,6 +1,9 @@
 package com.example.nonameproject;
 
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -18,6 +21,7 @@ import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
 import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -60,6 +64,7 @@ public class ActivityEvent extends ActivityMaster {
 	private EditText etAddress;
 	private EditText etDate;
 	private EditText etDesc;
+	private Spinner spCity;
 
 	/* VIEW MODE CONTROLS */
 	private TextView tvCat;
@@ -67,6 +72,7 @@ public class ActivityEvent extends ActivityMaster {
 	private TextView tvAddress;
 	private TextView tvDate;
 	private TextView tvDesc;
+	private TextView tvCity;
 
 	private Context context;
 	private Uri fileUri;
@@ -76,7 +82,6 @@ public class ActivityEvent extends ActivityMaster {
 	private boolean bannerDownloading;
 	private DownloadImageTask downloadTask;
 	private Event selectedEvent;
-	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +97,7 @@ public class ActivityEvent extends ActivityMaster {
 		bGallery = (Button) findViewById(R.id.openGallery);
 		etTitle = (EditText) findViewById(R.id.etTitle);
 		spCat = (Spinner) findViewById(R.id.spCat);
+		spCity = (Spinner) findViewById(R.id.spCity);
 		etAddress = (EditText) findViewById(R.id.etAddress);
 		etDate = (EditText) findViewById(R.id.etDate);
 		etDesc = (EditText) findViewById(R.id.etDesc);
@@ -101,6 +107,7 @@ public class ActivityEvent extends ActivityMaster {
 		tvDate = (TextView) findViewById(R.id.tvDate);
 		tvDesc = (TextView) findViewById(R.id.tvDescription);
 		tvTitle = (TextView) findViewById(R.id.tvTitle);
+		tvCity = (TextView) findViewById(R.id.tvCity);
 
 		/**
 		 * CHECK IF IT'S A NEW EVENT OR VIEW EVENT. IF IT'S VIEW EVENT MODE THEN
@@ -121,6 +128,7 @@ public class ActivityEvent extends ActivityMaster {
 			tvDate.setText(selectedEvent.getAttribute2());
 			tvDesc.setText(selectedEvent.getEvent_desc());
 			tvCat.setText(selectedEvent.getAttribute4());
+			tvCity.setText(selectedEvent.getAttribute6());
 
 			// SWITCH ALL CONTROLS
 			switchControls();
@@ -142,7 +150,6 @@ public class ActivityEvent extends ActivityMaster {
 		/** TODO: OPEN GALLERY TO SELECT PICTURE **/
 	}
 
-
 	private void switchMenuItems(Menu menu) {
 		MenuItem saveMItem = menu.findItem(R.id.action_save_event);
 		MenuItem cancelMItem = menu.findItem(R.id.action_cancel_event);
@@ -161,6 +168,7 @@ public class ActivityEvent extends ActivityMaster {
 		etDate.setVisibility(View.GONE);
 		etDesc.setVisibility(View.GONE);
 		spCat.setVisibility(View.GONE);
+		spCity.setVisibility(View.GONE);
 		// HIDE BUTTONS
 		bCamera.setVisibility(View.GONE);
 		bGallery.setVisibility(View.GONE);
@@ -170,6 +178,7 @@ public class ActivityEvent extends ActivityMaster {
 		tvDate.setVisibility(View.VISIBLE);
 		tvDesc.setVisibility(View.VISIBLE);
 		tvCat.setVisibility(View.VISIBLE);
+		tvCity.setVisibility(View.VISIBLE);
 
 	}
 
@@ -230,10 +239,16 @@ public class ActivityEvent extends ActivityMaster {
 		ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(context,
 				android.R.layout.simple_spinner_dropdown_item, cats);
 		spCat.setAdapter(spinnerAdapter);
+
+		String[] cities = getCities();
+		ArrayAdapter<String> citiesSpinnerAdapter = new ArrayAdapter<String>(
+				context, android.R.layout.simple_spinner_dropdown_item, cities);
+		spCity.setAdapter(citiesSpinnerAdapter);
 	}
 
 	/**
-	 * TODO: BELOW VALUES ARE DUMMY, REPLACE THEM WITH ORIGINAL VALUES
+	 * TODO: BELOW VALUES ARE DUMMY, REPLACE THEM WITH ORIGINAL VALUES TODO:
+	 * EXTRACT BELOW METHOD TO SOME CLASS NAMED resources.java
 	 * 
 	 * @return String[]
 	 */
@@ -246,6 +261,19 @@ public class ActivityEvent extends ActivityMaster {
 		cats[4] = "CAT-E";
 		return cats;
 
+	}
+
+	/*
+	 * TODO: EXTRACT BELOW METHOD TO SOME CLASS NAMED resources.java
+	 */
+	private String[] getCities() {
+		String cities[] = new String[5];
+		cities[0] = "Vehari";
+		cities[1] = "Bahawalpur";
+		cities[2] = "Lahore";
+		cities[3] = "Multan";
+		cities[4] = "Islamabad";
+		return cities;
 	}
 
 	/**
@@ -328,6 +356,7 @@ public class ActivityEvent extends ActivityMaster {
 		final String date = etDate.getText().toString();
 		final String description = etDesc.getText().toString();
 		final String imageString = StringUtil.bitmapToBase64(bitmap);
+		final String eventCity = spCity.getSelectedItem().toString();
 
 		new AsyncTask<Void, Void, String>() {
 
@@ -346,17 +375,19 @@ public class ActivityEvent extends ActivityMaster {
 					logMessage("Uploading event: try # " + count);
 					try {
 						response = serverUtil.submitEvent(eventTitle, eventCat,
-								address, date, description, imageString);
+								address, date, description, imageString,
+								eventCity);
 
 						if (response != null) {
 							break;
 						}
 					} catch (Exception e) {
 						logMessage("Error event submission: " + e.getMessage());
-						try{
-							Thread.sleep(1000*1);
-						}catch (Exception ie) {}
-						
+						try {
+							Thread.sleep(1000 * 1);
+						} catch (Exception ie) {
+						}
+
 					}
 				}
 
@@ -471,7 +502,7 @@ public class ActivityEvent extends ActivityMaster {
 					+ params[0].trim().replace(" ", "%20");
 			Bitmap mIcon11 = null;
 			int count = 1;
-			for (count = 1; count <= MAX_TRIES;count++) {
+			for (count = 1; count <= MAX_TRIES; count++) {
 				try {
 					InputStream in = new java.net.URL(urldisplay).openStream();
 					mIcon11 = BitmapFactory.decodeStream(in);
@@ -481,9 +512,10 @@ public class ActivityEvent extends ActivityMaster {
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
-					try{
-						Thread.sleep(1000*1);
-					}catch (Exception ie) {}
+					try {
+						Thread.sleep(1000 * 1);
+					} catch (Exception ie) {
+					}
 				}
 			}
 
@@ -526,7 +558,7 @@ public class ActivityEvent extends ActivityMaster {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (showEventMode) {
 			switchMenuItems(menu);
-			
+
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -543,59 +575,79 @@ public class ActivityEvent extends ActivityMaster {
 		} else if (id == android.R.id.home) {
 			NavUtils.navigateUpFromSameTask(this);
 
-		}else if (id == R.id.action_w){
+		} else if (id == R.id.action_w) {
 			showMoreOptions();
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	private void showMoreOptions(){
-		CharSequence[] items = {"Add To Calendar", "Share","Remove"};
-	    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-	    builder.setItems(items, new DialogInterface.OnClickListener() {
-	        public void onClick(DialogInterface dialog, int item) {
 
-	            if(item == 0) {
-	            	addEventToCalendar(selectedEvent);
-	            } else if(item == 1) {
+	private void showMoreOptions() {
+		CharSequence[] items = { "Add To Calendar", "Share", "Remove" };
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setItems(items, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int item) {
 
-	            } else if(item == 2) {
-	            	deleteEvent(selectedEvent);
-	            }
-	        }
-	    });
+				if (item == 0) {
+					addEventToCalendar(selectedEvent);
+				} else if (item == 1) {
 
-	     AlertDialog dialog = builder.create();
-	     dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-	     WindowManager.LayoutParams wmlp = dialog.getWindow().getAttributes();
+				} else if (item == 2) {
+					deleteEvent(selectedEvent);
+				}
+			}
+		});
 
-	 wmlp.gravity = Gravity.TOP | Gravity.RIGHT;
-	 //wmlp.x = 100;   //x position
-	 wmlp.y = 100;//y position
+		AlertDialog dialog = builder.create();
+		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		WindowManager.LayoutParams wmlp = dialog.getWindow().getAttributes();
 
-	 dialog.show();
+		wmlp.gravity = Gravity.TOP | Gravity.RIGHT;
+		// wmlp.x = 100; //x position
+		wmlp.y = 100;// y position
+
+		dialog.show();
 	}
-	private void deleteEvent(Event e){
+
+	private void deleteEvent(Event e) {
 		Database database = new Database(context);
 		long numRows = database.deleteEvent(e);
 		if (numRows > 0) {
 			displayMessage("Event Removed.");
 			finish();
-		}else{
+		} else {
 			displayMessage("Error Removing Event.");
 		}
 	}
+
+	// TODO: ADD EVENT DATE TO CALENDAR EVENT
+	private void addEventToCalendar(Event e) {
 	
-	//TODO: ADD EVENT DATE TO CALENDAR EVENT
-	private void addEventToCalendar(Event e){
+		String date = e.getAttribute2();
+		String dateTokens[] = date.split(" ");
+		
+		String datePart = dateTokens[0].replace("/", "-");
+		String datePartTokens[] = datePart.split("-");
+		datePart = datePartTokens[1]+"-"+datePartTokens[0]+"-"+datePartTokens[2];
+		String timePart = dateTokens[1]+" "+dateTokens[2];
+		
+		java.text.DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
+		Date inputDate=null;
+		try {
+			inputDate = dateFormat.parse(datePart+" "+timePart);
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		Intent intent = new Intent(Intent.ACTION_EDIT);
 		intent.setType("vnd.android.cursor.item/event");
 		intent.putExtra(Events.TITLE, e.getAttribute1());
 		intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
-		                    java.lang.System.currentTimeMillis());
+				inputDate.getTime());
 		intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,
-		                    java.lang.System.currentTimeMillis());
+				inputDate.getTime());
 		intent.putExtra(Events.ALL_DAY, false);// periodicity
-		            intent.putExtra(Events.DESCRIPTION,e.getEvent_desc());
-		            startActivity(intent);
+		intent.putExtra(Events.DESCRIPTION, e.getEvent_desc());
+		startActivity(intent);
 	}
 }

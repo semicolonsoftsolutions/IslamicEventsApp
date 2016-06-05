@@ -27,7 +27,7 @@ public class ServerUtil {
 	}
 	
 	public String submitEvent(String eventTitle,String eventCat,String eventAddress,
-							String eventDate, String eventDesc,String image) throws Exception{
+							String eventDate, String eventDesc,String image,String city) throws Exception{
 		
 		//CREATE PARAMETERS TO SENT TO PHP
 		List<NameValuePair> params = new ParamBuilder().addParam("event_title", eventTitle)
@@ -35,6 +35,7 @@ public class ServerUtil {
 		.addParam("event_address", eventAddress)
 		.addParam("event_date", eventDate)
 		.addParam("event_desc", eventDesc)
+		.addParam("event_city", city)
 		.addParam("event_image", image).build();
 		
 		
