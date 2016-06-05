@@ -12,8 +12,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:padding="10dp" >
 
+            
             <ImageView
                 android:id="@+id/ivEventImage"
                 android:layout_width="fill_parent"
@@ -34,7 +36,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Event Title: "
-                        android:textSize="20sp" />
+                        android:textColor="#7A7A7A"
+                        android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/etTitle"
@@ -42,7 +45,22 @@
                         android:layout_height="50dp"
                         android:ems="10"
                         android:hint="Type Title" />
+
+                    <TextView
+                        android:id="@+id/tvTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:hint="Type Title"
+                        android:textColor="#7A7A7A"
+                        android:visibility="gone" />
                 </TableRow>
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_marginTop="3dp"
+                    android:background="@drawable/divider" />
 
                 <TableRow
                     android:id="@+id/tableRow2"
@@ -53,21 +71,29 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Event Category: "
-                        android:textSize="20sp" />
+                        android:textColor="#7A7A7A"
+                        android:textStyle="bold" />
 
                     <Spinner
                         android:id="@+id/spCat"
                         android:layout_width="wrap_content"
                         android:layout_height="50dp" />
-                    
-                    <EditText
-                        android:id="@+id/etCat"
+
+                    <TextView
+                        android:id="@+id/tvCat"
                         android:layout_width="wrap_content"
-                        android:layout_height="50dp"
-                        android:ems="10"
-                        android:visibility="gone"
-                        android:hint="Type Title" />
+                        android:layout_height="wrap_content"
+                        android:hint="Type Title"
+                        android:textColor="#7A7A7A"
+                        android:visibility="gone" />
                 </TableRow>
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/divider" />
 
                 <TableRow
                     android:id="@+id/tableRow3"
@@ -78,15 +104,33 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Address: "
-                        android:textSize="20sp" />
+                        android:textColor="#7A7A7A"
+                        android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/etAddress"
                         android:layout_width="wrap_content"
                         android:layout_height="50dp"
                         android:ems="10"
-                        android:hint="Type Address" />
+                        android:hint="Type Address"
+                        android:lines="8" />
+
+                    <TextView
+                        android:id="@+id/tvAddress"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="fill_vertical"
+                        android:layout_weight="1"
+                        android:textColor="#7A7A7A"
+                        android:visibility="gone" />
                 </TableRow>
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/divider" />
 
                 <TableRow
                     android:id="@+id/tableRow4"
@@ -97,7 +141,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Event Date: "
-                        android:textSize="20sp" />
+                        android:textColor="#7A7A7A"
+                        android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/etDate"
@@ -105,7 +150,22 @@
                         android:layout_height="50dp"
                         android:ems="10"
                         android:hint="Type Date" />
+
+                    <TextView
+                        android:id="@+id/tvDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:hint="Type Title"
+                        android:textColor="#7A7A7A"
+                        android:visibility="gone" />
                 </TableRow>
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/divider" />
 
                 <TableRow
                     android:id="@+id/tableRow5"
@@ -116,7 +176,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Description: "
-                        android:textSize="20sp" />
+                        android:textColor="#7A7A7A"
+                        android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/etDesc"
@@ -125,7 +186,23 @@
                         android:ems="10"
                         android:hint="Description"
                         android:minLines="4" />
+
+                    <TextView
+                        android:id="@+id/tvDescription"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="fill_vertical"
+                        android:layout_weight="1"
+                        android:textColor="#7A7A7A"
+                        android:visibility="gone" />
                 </TableRow>
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/divider" />
 
                 <TableRow
                     android:id="@+id/tableRow6"
@@ -145,7 +222,6 @@
                         android:text="Gallery" />
                 </TableRow>
             </TableLayout>
-
         </LinearLayout>
     </ScrollView>
 

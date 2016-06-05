@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,25 +14,32 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.CalendarContract;
+import android.provider.CalendarContract.Events;
 import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.example.nonameproject.model.Event;
+import com.example.nonameproject.util.Database;
 import com.example.nonameproject.util.DialogFactory;
 import com.example.nonameproject.util.DialogType;
 import com.example.nonameproject.util.Json;
@@ -43,6 +51,7 @@ public class ActivityEvent extends ActivityMaster {
 	protected static final int CAPTURE_IMAGE = 0;
 	public static final int MEDIA_TYPE_IMAGE = 0;
 	private static final int MAX_TRIES = 5;
+	/* EDIT/NEW MODE CONTROL */
 	private Button bCamera;
 	private EditText etCat;
 	private Button bGallery;
@@ -51,11 +60,23 @@ public class ActivityEvent extends ActivityMaster {
 	private EditText etAddress;
 	private EditText etDate;
 	private EditText etDesc;
+
+	/* VIEW MODE CONTROLS */
+	private TextView tvCat;
+	private TextView tvTitle;
+	private TextView tvAddress;
+	private TextView tvDate;
+	private TextView tvDesc;
+
 	private Context context;
 	private Uri fileUri;
 	private Bitmap bitmap;
 	private Menu eventMenu;
 	private boolean showEventMode;
+	private boolean bannerDownloading;
+	private DownloadImageTask downloadTask;
+	private Event selectedEvent;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +84,7 @@ public class ActivityEvent extends ActivityMaster {
 		setContentView(R.layout.activity_event);
 		context = this;
 		getActionBar().setDisplayHomeAsUpEnabled(true);
-		
-		
+
 		/**
 		 * MAKE UI REFERENCES
 		 */
@@ -75,7 +95,12 @@ public class ActivityEvent extends ActivityMaster {
 		etAddress = (EditText) findViewById(R.id.etAddress);
 		etDate = (EditText) findViewById(R.id.etDate);
 		etDesc = (EditText) findViewById(R.id.etDesc);
-		etCat = (EditText) findViewById(R.id.etCat);
+
+		tvCat = (TextView) findViewById(R.id.tvCat);
+		tvAddress = (TextView) findViewById(R.id.tvAddress);
+		tvDate = (TextView) findViewById(R.id.tvDate);
+		tvDesc = (TextView) findViewById(R.id.tvDescription);
+		tvTitle = (TextView) findViewById(R.id.tvTitle);
 
 		/**
 		 * CHECK IF IT'S A NEW EVENT OR VIEW EVENT. IF IT'S VIEW EVENT MODE THEN
@@ -84,30 +109,27 @@ public class ActivityEvent extends ActivityMaster {
 		Intent intent = getIntent();
 		showEventMode = intent.hasExtra("EXTRA_EVENT");
 		if (showEventMode) {
-			Event event = intent.getExtras().getParcelable("EXTRA_EVENT");
+			selectedEvent = intent.getExtras().getParcelable("EXTRA_EVENT");
 			ImageView ivImage = (ImageView) findViewById(R.id.ivEventImage);
 
 			// SHOW EVENT ON CONTROLS
-			new DownloadImageTask(ivImage).execute(event.getAttribute5());
-			etTitle.setText(event.getAttribute1());
-			getActionBar().setTitle(event.getAttribute1());
-			etAddress.setText(event.getAttribute3());
-			etDate.setText(event.getAttribute2());
-			etDesc.setText(event.getEvent_desc());
+			downloadTask = new DownloadImageTask(ivImage);
+			downloadTask.execute(selectedEvent.getAttribute5());
+			getActionBar().setTitle(selectedEvent.getAttribute1());
+			tvTitle.setText(selectedEvent.getAttribute1());
+			tvAddress.setText(selectedEvent.getAttribute3());
+			tvDate.setText(selectedEvent.getAttribute2());
+			tvDesc.setText(selectedEvent.getEvent_desc());
+			tvCat.setText(selectedEvent.getAttribute4());
 
-			// DISABLE ALL CONTROLS
-			disableControls();
-
-			// BECAUSE I AM TOO LAZY TO DISPLAY CATEGORY ON A SPINNER, SUCKS.
-			etCat.setVisibility(View.VISIBLE);
-			etCat.setEnabled(false);
-			etCat.setText(event.getAttribute4());
+			// SWITCH ALL CONTROLS
+			switchControls();
 
 		}
 
 		/*** HIDE SOFT KEYBOARD ***/
 		System.getInstance(this).hideSoftKeyboard(this);
-		
+
 		/*** FILL SPINNER WITH VALUES ***/
 		fillSpinner();
 
@@ -120,26 +142,35 @@ public class ActivityEvent extends ActivityMaster {
 		/** TODO: OPEN GALLERY TO SELECT PICTURE **/
 	}
 
-	private void hideMenuItems(Menu menu) {
+
+	private void switchMenuItems(Menu menu) {
 		MenuItem saveMItem = menu.findItem(R.id.action_save_event);
 		MenuItem cancelMItem = menu.findItem(R.id.action_cancel_event);
+		MenuItem moreIMItem = menu.findItem(R.id.action_w);
 
 		saveMItem.setVisible(false);
 		cancelMItem.setVisible(false);
+		moreIMItem.setVisible(true);
 
-		//invalidateOptionsMenu();
+		// invalidateOptionsMenu();
 	}
 
-	private void disableControls() {
-		etTitle.setEnabled(false);
-		etAddress.setEnabled(false);
-		etDate.setEnabled(false);
-		etDesc.setEnabled(false);
+	private void switchControls() {
+		etTitle.setVisibility(View.GONE);
+		etAddress.setVisibility(View.GONE);
+		etDate.setVisibility(View.GONE);
+		etDesc.setVisibility(View.GONE);
 		spCat.setVisibility(View.GONE);
-
 		// HIDE BUTTONS
 		bCamera.setVisibility(View.GONE);
 		bGallery.setVisibility(View.GONE);
+
+		tvTitle.setVisibility(View.VISIBLE);
+		tvAddress.setVisibility(View.VISIBLE);
+		tvDate.setVisibility(View.VISIBLE);
+		tvDesc.setVisibility(View.VISIBLE);
+		tvCat.setVisibility(View.VISIBLE);
+
 	}
 
 	private void setUpCameraAction() {
@@ -228,7 +259,7 @@ public class ActivityEvent extends ActivityMaster {
 	 */
 	public Bitmap getResizedBitmap(Bitmap bm) {
 
-		int scaleToUse = 40; // this will be our percentage
+		int scaleToUse = 30; // this will be our percentage
 
 		/**
 		 * GET SCREEN RESOLUTION
@@ -283,7 +314,7 @@ public class ActivityEvent extends ActivityMaster {
 		final ProgressDialog waitDialog = (ProgressDialog) DialogFactory
 				.createDialog(DialogType.DIALOG_WAIT, context);
 		waitDialog.setTitle("Please wait!");
-		waitDialog.setMessage("Submitting Event. Try # 1.");
+		waitDialog.setMessage("Uploading. . . .");
 		waitDialog.setIndeterminate(true);
 
 		final AlertDialog errorDialog = (AlertDialog) DialogFactory
@@ -311,7 +342,7 @@ public class ActivityEvent extends ActivityMaster {
 				String response = null;
 
 				for (count = 1; count <= MAX_TRIES; count++) {
-					waitDialog.setMessage("Submitting Event, Try # " + count);
+
 					logMessage("Uploading event: try # " + count);
 					try {
 						response = serverUtil.submitEvent(eventTitle, eventCat,
@@ -322,24 +353,51 @@ public class ActivityEvent extends ActivityMaster {
 						}
 					} catch (Exception e) {
 						logMessage("Error event submission: " + e.getMessage());
+						try{
+							Thread.sleep(1000*1);
+						}catch (Exception ie) {}
+						
 					}
 				}
 
+				waitDialog.cancel();
+
 				/**
-				 * IF MAX TRIES ARE ALSO DONE THEN SHOW ERROR TODO: SHOW THE
-				 * ERROR MESSAGE INTO A DIALOG INSTEAD OF A LOG MESSAGE
+				 * IF MAX TRIES ARE ALSO DONE THEN SHOW ERROR
 				 */
 				if (count == (MAX_TRIES + 1)) {
-					errorDialog
-							.setMessage("SERVER ISN'T RESPONDING, TRY AGAIN.");
+
+					ActivityEvent.this.runOnUiThread(new Runnable() {
+
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							errorDialog
+									.setMessage("SERVER ISN'T RESPONDING, TRY AGAIN.");
+							errorDialog.show();
+						}
+					});
+
 					logMessage("Server isn't responding or your internet is not on");
 				}
+
+				// this is just for testing.
+				final String message = response;
+				ActivityEvent.this.runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						displayMessage("" + message);
+					}
+				});
 				return response;
 			}
 
 			@Override
 			protected void onPostExecute(String result) {
 				super.onPostExecute(result);
+				waitDialog.cancel();
 				if (result != null) {
 					StringUtil strUtil = new StringUtil();
 					String jsonResult = strUtil.parseJsonString(result);
@@ -351,16 +409,17 @@ public class ActivityEvent extends ActivityMaster {
 						e.printStackTrace();
 					}
 					if (successUpload.trim().equals("1")) {
-						waitDialog.cancel();
+
 						displayMessage("EVENT SUBMITTED SUCCESSFULLY");
 						finish();
 					} else {
-						waitDialog.cancel();
 						errorDialog
 								.setMessage("SOMETHING WENT WRONG, TRY AGAIN.");
 						errorDialog.show();
-						displayMessage("Something went wrong");
 					}
+				} else {
+					displayMessage("NO RESPONSE . . TRY AGAIN");
+					finish();
 				}
 			}
 		}.execute();
@@ -369,9 +428,19 @@ public class ActivityEvent extends ActivityMaster {
 	private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 
 		ImageView imageView;
+		/**
+		 * DIALOGS THAT'LL BE USED IN THIS TASK
+		 */
+		final ProgressDialog waitDialog = (ProgressDialog) DialogFactory
+				.createDialog(DialogType.DIALOG_WAIT, context);
 
 		public DownloadImageTask(ImageView imageView) {
 			this.imageView = imageView;
+			waitDialog.setTitle("Please wait!");
+			waitDialog.setMessage("Downloading Banner.");
+			waitDialog.setIndeterminate(true);
+			waitDialog.setCancelable(false);
+			bannerDownloading = true;
 		}
 
 		@Override
@@ -394,24 +463,53 @@ public class ActivityEvent extends ActivityMaster {
 
 			// IF THE IMAGE IS NOT IN LOCAL STORAGE THEN DOWNLOAD IT FROM REMOTE
 			// AND SAVE IN LOCAL STORAGE
-			logMessage("downloading image . . . " + imageName);
-			String urldisplay = ApplicationClass.BASE_URL + "/" + params[0];
+			// TODO: CAN'T DOWNLOAD IMAGES WITH NAME WITH SPACES. TAKE CARE OF
+			// IT.
+			logMessage("downloading image . . . "
+					+ imageName.trim().replace(" ", "%20"));
+			String urldisplay = ApplicationClass.BASE_URL + "/"
+					+ params[0].trim().replace(" ", "%20");
 			Bitmap mIcon11 = null;
-			try {
-				InputStream in = new java.net.URL(urldisplay).openStream();
-				mIcon11 = BitmapFactory.decodeStream(in);
-				system.saveBitmap(mIcon11, imageName);
-			} catch (Exception e) {
-				Log.e("Error", e.getMessage());
-				e.printStackTrace();
+			int count = 1;
+			for (count = 1; count <= MAX_TRIES;count++) {
+				try {
+					InputStream in = new java.net.URL(urldisplay).openStream();
+					mIcon11 = BitmapFactory.decodeStream(in);
+					if (mIcon11 != null) {
+						system.saveBitmap(mIcon11, imageName);
+						break;
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					try{
+						Thread.sleep(1000*1);
+					}catch (Exception ie) {}
+				}
 			}
+
+			if (count == (MAX_TRIES + 1)) {
+				logMessage("Can't download image . . . . ");
+				// SHOW A BUTTON BY PRESSING WHICH THE USER WILL START IMAGE
+				// DOWNLOADING AGAIN.
+			}
+
 			return mIcon11;
 		}
 
 		@Override
 		protected void onPostExecute(Bitmap result) {
 			super.onPostExecute(result);
-			imageView.setImageBitmap(result);
+			waitDialog.cancel();
+			if (result != null) {
+				imageView.setImageBitmap(result);
+			}
+
+		}
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			waitDialog.show();
 		}
 
 	}
@@ -427,7 +525,8 @@ public class ActivityEvent extends ActivityMaster {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (showEventMode) {
-			hideMenuItems(menu);
+			switchMenuItems(menu);
+			
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -441,10 +540,60 @@ public class ActivityEvent extends ActivityMaster {
 		} else if (id == R.id.action_cancel_event) {
 
 			return true;
-		}else if(id == android.R.id.home){
+		} else if (id == android.R.id.home) {
 			NavUtils.navigateUpFromSameTask(this);
-			
+
+		}else if (id == R.id.action_w){
+			showMoreOptions();
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	private void showMoreOptions(){
+		CharSequence[] items = {"Add To Calendar", "Share","Remove"};
+	    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	    builder.setItems(items, new DialogInterface.OnClickListener() {
+	        public void onClick(DialogInterface dialog, int item) {
+
+	            if(item == 0) {
+	            	addEventToCalendar(selectedEvent);
+	            } else if(item == 1) {
+
+	            } else if(item == 2) {
+	            	deleteEvent(selectedEvent);
+	            }
+	        }
+	    });
+
+	     AlertDialog dialog = builder.create();
+	     dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+	     WindowManager.LayoutParams wmlp = dialog.getWindow().getAttributes();
+
+	 wmlp.gravity = Gravity.TOP | Gravity.RIGHT;
+	 //wmlp.x = 100;   //x position
+	 wmlp.y = 100;//y position
+
+	 dialog.show();
+	}
+	private void deleteEvent(Event e){
+		Database database = new Database(context);
+		long numRows = database.deleteEvent(e);
+		if (numRows > 0) {
+			displayMessage("Event Removed.");
+			finish();
+		}else{
+			displayMessage("Error Removing Event.");
+		}
+	}
+	private void addEventToCalendar(Event e){
+		Intent intent = new Intent(Intent.ACTION_EDIT);
+		intent.setType("vnd.android.cursor.item/event");
+		intent.putExtra(Events.TITLE, e.getAttribute1());
+		intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+		                    java.lang.System.currentTimeMillis());
+		intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,
+		                    java.lang.System.currentTimeMillis());
+		intent.putExtra(Events.ALL_DAY, false);// periodicity
+		            intent.putExtra(Events.DESCRIPTION,e.getEvent_desc());
+		            startActivity(intent);
 	}
 }

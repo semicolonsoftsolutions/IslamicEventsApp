@@ -19,6 +19,7 @@ import com.example.nonameproject.adapter.EventListAdapter;
 import com.example.nonameproject.model.Event;
 import com.example.nonameproject.util.AppPrefs;
 import com.example.nonameproject.util.Database;
+import com.example.nonameproject.util.System;
 
 public class ActivityNotifications extends ActivityMaster {
 
@@ -27,7 +28,8 @@ public class ActivityNotifications extends ActivityMaster {
 	private ListView listEvents;
 	private EventListAdapter adapter;
 	private List<Event> events;
-
+	private int eventsCount;
+	
 	/**
 	 * If the user hasn't registered with the server then below broadcast
 	 * receiver will not be executed because i'm not broadcasting messages if
@@ -49,11 +51,11 @@ public class ActivityNotifications extends ActivityMaster {
 			if (events == null) {
 				events = new ArrayList<Event>();
 			}else{
-				logMessage("Events is not null, size is: "+events.size());
+				//logMessage("Events is not null, size is: "+events.size());
 				events.clear();
 			}
 			
-			logMessage("Total events in the database: "+db.getEvents().size());
+			//logMessage("Total events in the database: "+db.getEvents().size());
 
 			events.addAll(db.getEvents());
 			adapter.setItems(events);
@@ -64,6 +66,7 @@ public class ActivityNotifications extends ActivityMaster {
 			 * TODO:REMOVE NOTIFICAITONS FROM NOTIFICATION BAR AS USER HAS SEEN
 			 * THE EVENT IN THE LIST SO NO NEED TO KEEP NOTIFICATIONS
 			 */
+			System.getInstance(context).removeAllNotifications();
 		}
 	};
 
@@ -72,7 +75,10 @@ public class ActivityNotifications extends ActivityMaster {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_notifications);
 		context = this;
-
+		
+		logMessage("onCreate:ActivityNotifications.java");
+		
+		System.getInstance(context).removeAllNotifications();
 
 		/**
 		 * SETTING UP LIST VIEW.IF THE USER HASN'T REGISTERED, THERE IS NO NEED
@@ -84,9 +90,10 @@ public class ActivityNotifications extends ActivityMaster {
 		Database database = new Database(context);	
 		if (events == null){
 			events = new ArrayList<Event>();
+			eventsCount = events.size();
 		}
 		
-		//AS I SAID, DON'T SHOW
+		//AS I SAID, DON'T SHOW IF USER HASN'T REGISTERED
 		if (new AppPrefs(context).get(AppPrefs.REG_ID) != null) {
 			events = database.getEvents();
 		}
@@ -154,8 +161,23 @@ public class ActivityNotifications extends ActivityMaster {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		logMessage("on Resume: ActivityNotifications.java");
+		
 		registerReceiver(eventNotificationReceiver, new IntentFilter(
 				ApplicationClass.ACTION_RELOAD));
+		//REFRESH ADAPTER IF ANHYTHING IN THE DATABASE HAS CHANGED/DELETE
+		Database database = new Database(context);
+		int newCount = database.getEventCount();
+		int eventCount = events.size();
+		displayMessage(newCount+" and "+eventCount);
+		if (newCount < eventCount) {
+			displayMessage("something has changed");
+			events.clear();
+			events.addAll(database.getEvents());
+			adapter.setItems(events);
+			adapter.notifyDataSetChanged();
+		}
+		
 	}
 
 	@Override

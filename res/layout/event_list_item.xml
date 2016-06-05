@@ -1,15 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:padding="5dp"
+    android:layout_height="100dp" >
 
-    <TextView
-        android:id="@+id/itemEventTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="Large Text"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/list_item_back"
+         >
 
-</RelativeLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="8"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/tvItemEventTitle"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Event Title"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/tvItemEventAddress"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Event Address"
+                android:textColor="#000000"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvItemEventDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="Event Date"
+                android:textColor="#CDCDCD"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:gravity="center" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_launcher" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

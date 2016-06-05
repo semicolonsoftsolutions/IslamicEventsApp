@@ -82,11 +82,27 @@ public class Database extends SQLiteOpenHelper{
 		return id;
 		
 	}
+	public long deleteEvent(Event e){
+		SQLiteDatabase database = getWritableDatabase();
+		
+		 long id = database.delete(EVENT_TABLE, EVENT_ID+" = ?", new String[]{e.getEvent_id()+""});
+		 database.close();
+		 return id;
+	}
 	
+	
+	public int getEventCount(){
+		SQLiteDatabase database  = this.getWritableDatabase();
+		Cursor c = database.query(EVENT_TABLE, null, null, null, null, null, null );
+		int size = c.getCount();
+		database.close();
+		return size;
+	}
 	public List<Event> getEvents(){
 	
 		SQLiteDatabase database = this.getWritableDatabase();
 		Cursor c = database.query(EVENT_TABLE, null, null, null, null, null, null);
+		
 		List<Event> list = Event.createFromCursor(c);
 		database.close();
 		return list;

@@ -52,7 +52,7 @@ public class MessageHandler extends BroadcastReceiver {
 		 * TODO: SHOW EVENT IN NOTIFICATION CURRENTLY DUMMY NOTIFICAITON IS
 		 * BEING SHOWN
 		 */
-		System.getInstance(context).showNotification();
+		System.getInstance(context).showNotification(e);
 
 		/********
 		 * SEND BROADCAST TO THE RECEIVER REGISTER IN NOTIFICATION ACTIVITY THAT

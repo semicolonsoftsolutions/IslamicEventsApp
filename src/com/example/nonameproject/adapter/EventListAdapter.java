@@ -28,7 +28,7 @@ public class EventListAdapter extends ArrayAdapter<Event>{
 		this.context = context;
 		this.items = items;
 		
-		Log.d("NONAME", items.size()+" ");
+		//Log.d("NONAME", items.size()+" ");
 	}
 	
 	public void setItems(List<Event> items){
@@ -38,7 +38,6 @@ public class EventListAdapter extends ArrayAdapter<Event>{
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		Log.d("NONAME", "get view");
 		View view = convertView;
 		Item item;
 		
@@ -47,7 +46,9 @@ public class EventListAdapter extends ArrayAdapter<Event>{
 			item = new Item();
 			
 			view = ((Activity)(context)).getLayoutInflater().inflate(resourceID, parent,false);
-			item.tvEventTitle = (TextView) view.findViewById(R.id.itemEventTitle);
+			item.tvEventTitle = (TextView) view.findViewById(R.id.tvItemEventTitle);
+			item.tvEventAddress = (TextView) view.findViewById(R.id.tvItemEventAddress);
+			item.tvEventDate = (TextView) view.findViewById(R.id.tvItemEventDate);
 			
 			view.setTag(item);
 			
@@ -55,8 +56,10 @@ public class EventListAdapter extends ArrayAdapter<Event>{
 			
 			item = (Item) view.getTag();
 		}
-		Log.d("NONAME", items.get(position).getAttribute1()+" "+items.get(position).getAttribute5());
+		//Log.d("NONAME", items.get(position).getAttribute1()+" "+items.get(position).getAttribute5());
 		item.tvEventTitle.setText(items.get(position).getAttribute1());
+		item.tvEventAddress.setText(items.get(position).getAttribute3());
+		item.tvEventDate.setText(items.get(position).getAttribute2());
 		
 		
 		return view;
@@ -64,6 +67,8 @@ public class EventListAdapter extends ArrayAdapter<Event>{
 	
 	private class Item{
 		public TextView tvEventTitle;
+		public TextView tvEventAddress;
+		public TextView tvEventDate;
 	}
 	
 	

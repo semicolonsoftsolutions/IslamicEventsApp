@@ -11,6 +11,7 @@ import java.util.Locale;
 import com.example.nonameproject.ActivityNotifications;
 import com.example.nonameproject.ApplicationClass;
 import com.example.nonameproject.R;
+import com.example.nonameproject.model.Event;
 
 import android.app.Activity;
 import android.app.Application;
@@ -65,14 +66,14 @@ public class System {
 	 * Displays notification in the notification bar, if notification doesn't
 	 * exists it creates and if exists then it updates the event count
 	 */
-	public void showNotification() {
+	public void showNotification(Event e) {
 
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
 				context).setSmallIcon(R.drawable.ic_launcher)
-				.setContentTitle("My notification")
-				.setContentText("Hello World!").setAutoCancel(true);
+				.setContentTitle("New Events")
+				.setContentText(e.getAttribute1()).setAutoCancel(true);
 
-		mBuilder.setContentText("Hello World").setNumber(
+		mBuilder.setContentText(e.getAttribute1()).setNumber(
 				++ApplicationClass.mNotificationCount);
 
 		// Creates an explicit intent for an Activity in your app
@@ -95,8 +96,17 @@ public class System {
 		NotificationManager mNotificationManager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 		// mId allows you to update the notification later on.
+		Notification notification = mBuilder.build();
+		
 		mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
 
+	}
+	
+	public void removeAllNotifications(){
+		NotificationManager notifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		notifyManager.cancel(NOTIFICATION_ID);
+		ApplicationClass.mNotificationCount = 0;
+		
 	}
 	
 	public void hideSoftKeyboard(Context context){
