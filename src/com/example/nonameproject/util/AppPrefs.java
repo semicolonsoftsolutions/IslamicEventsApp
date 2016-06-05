@@ -26,6 +26,10 @@ public class AppPrefs {
 		if (!prefs.contains(key))return null;
 		return prefs.getString(key, null);
 	}
+	public boolean getBoolean(String key){
+		if (!prefs.contains(key))return false;
+		return prefs.getBoolean(key, false);
+	}
 	
 	private static SharedPreferences getPrefs(Context context){
 		return PreferenceManager.getDefaultSharedPreferences(context);

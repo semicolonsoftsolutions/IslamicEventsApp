@@ -42,6 +42,7 @@
         <activity android:name=".ActivityEvent"
             android:parentActivityName=".ActivityNotifications"></activity>
         <activity android:name=".ActivityNotifications" android:launchMode="singleTop" ></activity>
+        <activity android:name=".ActivityUserSettings"></activity>
         <receiver
             android:name="com.example.nonameproject.gcm.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >

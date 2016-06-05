@@ -220,6 +220,8 @@ public class ActivityNotifications extends ActivityMaster {
 
 			startActivity(new Intent(context, ActivityEvent.class));
 			return true;
+		}else if (id == R.id.action_settings){
+			startActivity(new Intent(context,ActivityUserSettings.class));
 		}
 		return super.onOptionsItemSelected(item);
 	}

@@ -1,5 +1,7 @@
 package com.example.nonameproject;
 
+import com.example.nonameproject.util.AppPrefs;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -32,7 +34,9 @@ public class ActivitySplash extends Activity{
 	 * @return
 	 */
 	private boolean showSplash(){
-		return true;
+		AppPrefs prefs = new AppPrefs(this);
+		return prefs.getBoolean(ApplicationClass.PREF_KEY_SHOW_SPLASH);
+		
 	}
 	private void showRandomHadeeth(){
 		String fontFileName = "arabic_font.ttf";

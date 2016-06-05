@@ -14,5 +14,5 @@ public class ApplicationClass extends Application{
 	public static final String URL_GET_EVENT  =  "http://testingapps.netai.net/get_event.php";
 	public static final String BASE_URL = "http://testingapps.netai.net";
 	public static final String DOWNLOAD_IMAGES_DIRNAME = "event_banners";
-	
+	public static final String PREF_KEY_SHOW_SPLASH = "pref_show_splash";
 }
